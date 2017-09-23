@@ -16,13 +16,13 @@ from PIL import Image
 
 logger = logging.getLogger(__name__)
 
-class ZhihuSipder(Spider):
-    name = 'zhihu'
+class ZhihuUserSipder(Spider):
+    name = 'zhihuuser'
     allowed_domains = ['www.zhihu.com']
     start_urls = [
         "https://www.zhihu.com/"
     ]
-    start_user ='wang-tuan-jie-55'
+    start_user ='excited-vczh'
     
     # 查询粉丝或者关注列表里面的用户需要附带的参数
     include_follow='data[*].answer_count, articles_count, gender, follower_count, is_followed, is_following, badge[?(type = best_answerer)].topics'
@@ -59,8 +59,8 @@ class ZhihuSipder(Spider):
         post_url = 'https://www.zhihu.com/login/phone_num'
         post_data = {
             "_xsrf": xsrf,
-            "phone_num": 'user_name',
-            "password": 'password',
+            "phone_num": '18260984855',
+            "password": '',
             "captcha": response.meta['captcha']
         }
         return [scrapy.FormRequest(url=post_url, formdata=post_data, callback=self.check_login)]
@@ -76,55 +76,69 @@ class ZhihuSipder(Spider):
     
     def parse(self, response):
         # 访问用户，获取详细信息
-        yield scrapy.Request(url=self.userinfo_url.format(user_name=self.start_user,include_userinfo=self.include_userinfo),callback=self.get_user_info)
+        yield scrapy.Request(url=self.userinfo_url.format(user_name=self.start_user,include_userinfo=self.include_userinfo)
+                             ,callback=self.parse_user)
         # 用户的粉丝列表
-        yield scrapy.Request(url=self.followers_url.format(user_name=self.start_user,include_follow=self.include_follow,offset=0,limit=20),callback=self.get_followers_parse)
+        yield scrapy.Request(url=self.followers_url.format(user_name=self.start_user,include_follow=self.include_follow,offset=0,limit=20)
+                             ,callback=self.paese_followers)
         # 用户的关注列表
-        yield scrapy.Request(url=self.followees_url.format(user_name=self.start_user,include_follow=self.include_follow,offset=0,limit=20),callback=self.get_followees_parse)
+        yield scrapy.Request(url=self.followees_url.format(user_name=self.start_user,include_follow=self.include_follow,offset=0,limit=20)
+                             ,callback=self.paese_follows)
         
-    # 获取用户信息信息
-    def get_user_info(self,response):
+    # 详细信息的提取和粉丝关注列表的获取
+    def parse_user(self,response):
         data = json.loads(response.text)
         item = ZhihuSystemItem()
         for Field in item.fields:
             if Field in data.keys():
                 item[Field]=data.get(Field)
         yield item
-        yield scrapy.Request(url=self.followers_url.format(user_name=data.get('url_token'),include_follow=self.include_follow,offset=0,limit=20),callback=self.get_followers_parse)
-        yield scrapy.Request(url=self.followees_url.format(user_name=data.get('url_token'), include_follow=self.include_follow, offset=0,limit=20), callback=self.get_followees_parse)
+        yield scrapy.Request(url=self.followers_url.format(user_name=data.get('url_token'),include_follow=self.include_follow,offset=0,limit=20)
+                             ,callback=self.paese_followers)
+        yield scrapy.Request(url=self.followees_url.format(user_name=data.get('url_token'), include_follow=self.include_follow, offset=0,limit=20)
+                             , callback=self.paese_follows)
         
-    # 获取粉丝列表
-    def get_followers_parse(self, response):
-        try:#这里添加的异常是防止有些用户没有粉丝
+    # 实现了通过粉丝列表重新请求用户并进行翻页的功能
+    def paese_followers(self, response):
+        #添加异常是防止有些用户没有粉丝
+        try:
             followers_data = json.loads(response.text)
 
             try:
-                if  followers_data.get('data'):  # data里面是一个由字典组成的列表，每个字典是粉丝的相关信息
+                # data里面是一个由字典组成的列表，每个字典是粉丝的相关信息
+                if  followers_data.get('data'):  
                     for one_user in followers_data.get('data'):
-                        user_name = one_user['url_token']#提取url_token然后访问他的详细信息
-                        yield scrapy.Request(url=self.userinfo_url.format(user_name=user_name,include_userinfo=self.include_userinfo),callback=self.get_user_info)
-                        #将所有粉丝或者关注者的url_token提取出来，放进一开始我们构造的用户详细信息的网址里面，提取他们的信息
+                        # 提取url_token然后访问他的详细信息
+                        user_name = one_user['url_token']
+                        # 将所有粉丝的url_token提取出来，放进一开始我们构造的用户详细信息的网址里面，提取他们的信息
+                        yield scrapy.Request(url=self.userinfo_url.format(user_name=user_name,include_userinfo=self.include_userinfo)
+                                             ,callback=self.parse_user)
+                        
 
-                if  'paging' in followers_data.keys() and followers_data.get('paging').get('is_end') ==False:
-                    yield scrapy.Request(url=followers_data.get('paging').get('next'),callback=self.get_followers_parse)
+                if  'paging' in followers_data.keys() and followers_data.get('paging').get('is_end')==False:
+                    yield scrapy.Request(url=followers_data.get('paging').get('next'),callback=self.paese_followers)
             except Exception as e:
                 print(e,'该用户没有url_token')
         except Exception as e:
             print(e,' 该用户没有粉丝')
             
-    # 获取关注者的函数        
-    def get_followees_parse(self,response):
-        try:#这里添加的异常是防止有些用户没有关注者
+    # 实现了通过关注列表重新请求用户并进行翻页的功能
+    def paese_follows(self,response):
+        #添加异常是防止有些用户没有关注者
+        try:
             followees_data = json.loads(response.text)
             try:
                 if followees_data.get('data'):
                     for one_user in followees_data.get('data'):
-                        user_name = one_user['url_token']#提取url_token然后访问他的详细信息
-                        yield scrapy.Request(url=self.userinfo_url.format(user_name=user_name,include_userinfo=self.include_userinfo),callback=self.get_user_info)
-                        #将所有粉丝或者关注者的url_token提取出来，放进一开始我们构造的用户详细信息的网址里面，提取他们的信息
+                        # 提取url_token然后访问他的详细信息
+                        user_name = one_user['url_token']
+                        # 将所有关注者的url_token提取出来，放进一开始我们构造的用户详细信息的网址里面，提取他们的信息
+                        yield scrapy.Request(url=self.userinfo_url.format(user_name=user_name,include_userinfo=self.include_userinfo)
+                                             ,callback=self.parse_user)
+                        
 
-                if  'paging' in followees_data.keys() and followees_data.get('paging').get('is_end') ==False:#判断是否有下一页
-                    yield scrapy.Request(url=followees_data.get('paging').get('next'),callback=self.get_followees_parse)
+                if  'paging' in followees_data.keys() and followees_data.get('paging').get('is_end')==False:#判断是否有下一页
+                    yield scrapy.Request(url=followees_data.get('paging').get('next'),callback=self.paese_follows)
             except Exception as e:
                 print(e,'该用户没有url_token或者data')
         except Exception as e:

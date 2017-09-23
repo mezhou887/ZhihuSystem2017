@@ -10,7 +10,6 @@ import json
 import time
 import scrapy
 from scrapy.spiders import Spider
-from zhihusystem import settings
 
 from PIL import Image
 
@@ -47,8 +46,8 @@ class ZhihuLoginSipder(Spider):
         post_url = 'https://www.zhihu.com/login/phone_num'
         post_data = {
             "_xsrf": xsrf,
-            "phone_num": 'user_name',
-            "password": 'password',
+            "phone_num": '18260984855',
+            "password": '',
             "captcha": response.meta['captcha']
         }
         return [scrapy.FormRequest(url=post_url, formdata=post_data, callback=self.check_login)]
