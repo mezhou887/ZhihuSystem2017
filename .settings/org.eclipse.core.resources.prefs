@@ -1,0 +1,14 @@
+eclipse.preferences.version=1
+encoding//zhihusystem/items.py=utf-8
+encoding//zhihusystem/main.py=utf-8
+encoding//zhihusystem/middlewares.py=utf-8
+encoding//zhihusystem/pipelines.py=utf-8
+encoding//zhihusystem/settings.py=utf-8
+encoding//zhihusystem/spiders/ZhihuLoginSpider.py=utf-8
+encoding//zhihusystem/spiders/ZhihuSpider.py=utf-8
+encoding//zhihusystem/items.py=utf-8
+encoding//zhihusystem/main.py=utf-8
+encoding//zhihusystem/settings.py=utf-8
+encoding//zhihusystem/spiders/ZhihuLoginSpider.py=utf-8
+encoding//zhihusystem/spiders/ZhihuSpider.py=utf-8
+encoding/<project>=UTF-8
