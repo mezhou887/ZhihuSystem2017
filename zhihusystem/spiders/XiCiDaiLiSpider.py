@@ -54,7 +54,7 @@ class XiCiDaiLiSpider(CrawlSpider):
             item['speed'] = tr.xpath('td[7]/div/@title').re('\d+\.\d*')[0]
             item['last_check_time'] = tr.xpath('td[10]/text()').extract()[0]
             
-            if 'http' in item['type']: 
+            if 'http' in item['type'].lower(): 
                 logger.info('function: parse_proxy, url: '+response.url+' , item: '+str(item));
                 items.append(item)
             

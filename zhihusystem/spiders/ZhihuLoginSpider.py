@@ -27,9 +27,6 @@ class ZhihuLoginSipder(Spider):
         return [scrapy.Request(url=captcha_url, callback=self.parser_captcha)]
     
     def parser_captcha(self, response):
-        print self.crawler.settings.get("MONGODB_SERVER")
-        print self.crawler.settings.get("PHONE_NUM")
-        print self.crawler.settings.get("PASSWORD")
         with open('captcha.jpg', 'wb') as f:
             f.write(response.body)
             f.close()
@@ -49,8 +46,8 @@ class ZhihuLoginSipder(Spider):
         post_url = 'https://www.zhihu.com/login/phone_num'
         post_data = {
             "_xsrf": xsrf,
-            "phone_num": '18260984855',
-            "password": '',
+            "phone_num": self.crawler.settings.get("PHONE_NUM"),
+            "password": self.crawler.settings.get("PASSWORD"),
             "captcha": response.meta['captcha']
         }
         return [scrapy.FormRequest(url=post_url, formdata=post_data, callback=self.check_login)]

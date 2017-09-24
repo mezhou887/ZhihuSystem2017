@@ -7,7 +7,8 @@
 from pymongo import MongoClient
 
 class MongoPipeline(object):
-    collection_name = 'users'
+    collection_zhihuuser = 'users'
+    collection_proxy = 'proxy'
 
     def __init__(self, mongo_server, mongo_port, mongo_db, mongo_user, mongo_passwd):
         self.mongo_server = mongo_server
@@ -35,8 +36,13 @@ class MongoPipeline(object):
         self.client.close()
 
     def process_item(self, item, spider):
-        print spider.name
-        self.db[self.collection_name].update({'url_token': item['url_token']}, {'$set': dict(item)}, True)
+        if "zhihuuser" == spider.name: 
+            # 第一个参数传入查询条件，这里使用的是url_token，
+            # 第二个参数传入字典类型的对象，就是我们的item，
+            # 第三个参数传入True，这样就可以保证去重，如果查询数据存在的话就更新，不存在的话就插入。
+            self.db[self.collection_zhihuuser].update({'url_token': item['url_token']}, {'$set': dict(item)}, True)
+        elif "xicidaili" == spider.name:
+            self.db[self.collection_proxy].insert(dict(item))    
         return item
     
     
