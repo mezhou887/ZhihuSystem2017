@@ -51,6 +51,12 @@ class ZhihuUserItem(scrapy.Item):
     educations                = scrapy.Field()
     employments               = scrapy.Field()    
     
-    
+class XiCiDaiLiItem(scrapy.Item):
+    ip              = scrapy.Field()
+    port            = scrapy.Field()
+    position        = scrapy.Field()
+    type            = scrapy.Field()
+    speed           = scrapy.Field()
+    last_check_time = scrapy.Field()    
     
     

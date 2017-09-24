@@ -4,6 +4,7 @@ encoding//zhihusystem/main.py=utf-8
 encoding//zhihusystem/middlewares.py=utf-8
 encoding//zhihusystem/pipelines.py=utf-8
 encoding//zhihusystem/settings.py=utf-8
+encoding//zhihusystem/spiders/XiCiDaiLiSpider.py=utf-8
 encoding//zhihusystem/spiders/ZhihuLoginSpider.py=utf-8
 encoding//zhihusystem/spiders/ZhihuUserSipder.py=utf-8
 encoding/<project>=UTF-8
