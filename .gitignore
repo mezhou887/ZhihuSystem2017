@@ -105,3 +105,9 @@ ENV/
 zhihusystem/spiders/ZhihuLoginSpider.pyc
 *.pyc
 *.pyc
+*.pyc
+*.pyc
+zhihusystem/settings.pyc
+zhihusystem/items.pyc
+zhihusystem/spiders/ZhihuLoginSpider.pyc
+zhihusystem/settings.pyc

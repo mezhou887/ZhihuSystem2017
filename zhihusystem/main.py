@@ -16,6 +16,6 @@ if __name__ =="__main__":
                 os.remove(os.path.join(fpathe,f));    
     
 #     cmdline.execute("scrapy crawl zhihuLogin -o zhihuLogin.csv".split())
-    cmdline.execute("scrapy crawl zhihuuser -o zhihuuser.csv".split())
+    cmdline.execute("scrapy crawl zhihuuser -o zhihuUser.csv".split())
     
     

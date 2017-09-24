@@ -27,6 +27,9 @@ class ZhihuLoginSipder(Spider):
         return [scrapy.Request(url=captcha_url, callback=self.parser_captcha)]
     
     def parser_captcha(self, response):
+        print self.crawler.settings.get("MONGODB_SERVER")
+        print self.crawler.settings.get("PHONE_NUM")
+        print self.crawler.settings.get("PASSWORD")
         with open('captcha.jpg', 'wb') as f:
             f.write(response.body)
             f.close()

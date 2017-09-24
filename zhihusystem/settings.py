@@ -70,9 +70,9 @@ DEFAULT_REQUEST_HEADERS = {
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'zhihusystem.pipelines.ZhihuSystemPipeline': 300,
-#}
+ITEM_PIPELINES = {
+    'zhihusystem.pipelines.MongoPipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -99,3 +99,11 @@ DEFAULT_REQUEST_HEADERS = {
 # LOG_FILE = 'scrapysystem.log'
 # LOG_ENABLED = True
 LOG_LEVEL = 'INFO' # CRITICAL > ERROR > WARNING > INFO > DEBUG
+
+MONGODB_SERVER = "192.168.31.131"   
+MONGODB_PORT = '27017'   
+MONGODB_DB = 'zhihu' 
+MONGO_USER='root'
+MONGO_PASSWD='bitnami'
+PHONE_NUM='18260984855'
+PASSWORD='360039528w'

@@ -8,7 +8,7 @@ import logging
 import json
 import scrapy
 from scrapy.spiders import Spider
-from zhihusystem.items import ZhihuSystemItem
+from zhihusystem.items import ZhihuUserItem
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +96,7 @@ class ZhihuUserSipder(Spider):
     # 详细信息的提取和粉丝关注列表的获取
     def parse_user(self,response):
         data = json.loads(response.text)
-        item = ZhihuSystemItem()
+        item = ZhihuUserItem()
         for Field in item.fields:
             if Field in data.keys():
                 item[Field]=data.get(Field)
