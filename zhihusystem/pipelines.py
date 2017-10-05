@@ -5,10 +5,13 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from pymongo import MongoClient
+from scrapy.exceptions import DropItem
 
 class MongoPipeline(object):
     collection_zhihuuser = 'users'
     collection_proxy = 'proxy'
+    max_dropcount = 5
+    current_dropcount = 0
 
     def __init__(self, mongo_server, mongo_port, mongo_db, mongo_user, mongo_passwd):
         self.mongo_server = mongo_server
@@ -36,6 +39,11 @@ class MongoPipeline(object):
         self.client.close()
 
     def process_item(self, item, spider):
+        self.current_dropcount += 1
+        if(self.current_dropcount >= self.max_dropcount):
+            spider.close_down = True
+            raise DropItem("reach max limit")
+        
         if "zhihuuser" == spider.name: 
             # 第一个参数传入查询条件，这里使用的是url_token，
             # 第二个参数传入字典类型的对象，就是我们的item，

@@ -14,9 +14,10 @@ if __name__ =="__main__":
         for f in fs:
             if f.endswith('.pyc') or f.endswith('.csv')or f.endswith('.json'):
                 os.remove(os.path.join(fpathe,f));    
+#   －o 代表输出文件 －t 代表文件格式
     
-    cmdline.execute("scrapy crawl zhihuLogin -o zhihuLogin.csv".split())
-#     cmdline.execute("scrapy crawl zhihuuser -o zhihuUser.csv".split())
+#     cmdline.execute("scrapy crawl zhihuLogin -o zhihuLogin.csv".split())
+    cmdline.execute("scrapy crawl zhihuuser".split())
 #     cmdline.execute("scrapy crawl xicidaili -o xicidaili.csv".split())
     
     

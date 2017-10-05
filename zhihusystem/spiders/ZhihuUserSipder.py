@@ -8,6 +8,7 @@ import logging
 import json
 import scrapy
 from scrapy.spiders import Spider
+from scrapy.exceptions import CloseSpider
 from zhihusystem.items import ZhihuUserItem
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,8 @@ class ZhihuUserSipder(Spider):
     start_urls = [
         "https://www.zhihu.com/"
     ]
-    start_user ='excited-vczh'
+    start_user ='zhoumaoen'
+    close_down = False
     
     # 查询粉丝或者关注列表里面的用户需要附带的参数
     include_follow='data[*].answer_count, articles_count, gender, follower_count, is_followed, is_following, badge[?(type = best_answerer)].topics'
@@ -42,45 +44,7 @@ class ZhihuUserSipder(Spider):
         "X-Requested-With": "XMLHttpRequest",
         "authorization": "oauth c3cef7c66a1843f8b3a9e6a1e3160e20",
     } 
-    
-#     def start_requests(self):
-#         captcha_url = 'https://www.zhihu.com/captcha.gif?r=' + str(int(time.time() * 1000)) + '&type=login&lang=en'
-#         return [scrapy.Request(url=captcha_url, callback=self.parser_captcha)]
-#     
-#     def parser_captcha(self, response):
-#         with open('captcha.jpg', 'wb') as f:
-#             f.write(response.body)
-#             f.close()
-#         try:
-#             im = Image.open('captcha.jpg')
-#             im.show()
-#             im.close()
-#         except:
-#             print(u'请到 %s 目录找到captcha.jpg 手动输入' % os.path.abspath('captcha.jpg'))
-#         captcha = input("please input the captcha\n>")
-#         return [scrapy.FormRequest(url='https://www.zhihu.com/#signin', callback=self.login, meta={'captcha': captcha})]
-# 
-#     def login(self, response):
-#         xsrf = response.xpath("//input[@name='_xsrf']/@value").extract_first()
-#         if xsrf is None:
-#             return ''
-#         post_url = 'https://www.zhihu.com/login/phone_num'
-#         post_data = {
-#             "_xsrf": xsrf,
-#             "phone_num": '18260984855',
-#             "password": '',
-#             "captcha": response.meta['captcha']
-#         }
-#         return [scrapy.FormRequest(url=post_url, formdata=post_data, callback=self.check_login)]
-# 
-#     # 验证返回是否成功
-#     def check_login(self, response):
-#         js = json.loads(response.text)
-#         if 'msg' in js and js['msg'] == u'登录成功':
-#             for url in self.start_urls:
-#                 yield self.make_requests_from_url(url)
-#         else:
-#             print u'登录失败', js
+   
     
     def parse(self, response):
         # 访问用户，获取详细信息
@@ -92,6 +56,7 @@ class ZhihuUserSipder(Spider):
         # 用户的关注列表
         yield scrapy.Request(url=self.followees_url.format(user_name=self.start_user,include_follow=self.include_follow,offset=0,limit=20)
                              ,headers=self.headers,callback=self.paese_follows)
+
         
     # 详细信息的提取和粉丝关注列表的获取
     def parse_user(self,response):
@@ -105,6 +70,10 @@ class ZhihuUserSipder(Spider):
                              ,headers=self.headers,callback=self.paese_followers)
         yield scrapy.Request(url=self.followees_url.format(user_name=data.get('url_token'), include_follow=self.include_follow, offset=0,limit=20)
                              ,headers=self.headers,callback=self.paese_follows)
+        if(self.close_down == True):
+            print "达到需要抓取的数量，close spider"
+            raise CloseSpider(reason = "reach max limit")
+        
         
     # 实现了通过粉丝列表重新请求用户并进行翻页的功能
     def paese_followers(self, response):
@@ -128,7 +97,8 @@ class ZhihuUserSipder(Spider):
             except Exception as e:
                 print(e,'该用户没有url_token')
         except Exception as e:
-            print(e,' 该用户没有粉丝')
+            print(e,'该用户没有粉丝')
+     
             
     # 实现了通过关注列表重新请求用户并进行翻页的功能
     def paese_follows(self,response):
@@ -150,5 +120,5 @@ class ZhihuUserSipder(Spider):
             except Exception as e:
                 print(e,'该用户没有url_token或者data')
         except Exception as e:
-            print(e,' 该用户没有粉丝')                            
+            print(e,'该用户没有粉丝')                            
         
