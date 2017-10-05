@@ -10,7 +10,7 @@ from scrapy.exceptions import DropItem
 class MongoPipeline(object):
     collection_zhihuuser = 'users'
     collection_proxy = 'proxy'
-    max_dropcount = 5
+    max_dropcount = 500
     current_dropcount = 0
 
     def __init__(self, mongo_server, mongo_port, mongo_db, mongo_user, mongo_passwd):

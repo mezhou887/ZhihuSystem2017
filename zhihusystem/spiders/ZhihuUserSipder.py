@@ -57,9 +57,15 @@ class ZhihuUserSipder(Spider):
         yield scrapy.Request(url=self.followees_url.format(user_name=self.start_user,include_follow=self.include_follow,offset=0,limit=20)
                              ,headers=self.headers,callback=self.paese_follows)
 
+
+    def check_closed(self):
+        if(self.close_down == True):
+            raise CloseSpider(reason = "reach max limit")    
+
         
     # 详细信息的提取和粉丝关注列表的获取
     def parse_user(self,response):
+        self.check_closed()
         data = json.loads(response.text)
         item = ZhihuUserItem()
         for Field in item.fields:
@@ -70,13 +76,11 @@ class ZhihuUserSipder(Spider):
                              ,headers=self.headers,callback=self.paese_followers)
         yield scrapy.Request(url=self.followees_url.format(user_name=data.get('url_token'), include_follow=self.include_follow, offset=0,limit=20)
                              ,headers=self.headers,callback=self.paese_follows)
-        if(self.close_down == True):
-            print "达到需要抓取的数量，close spider"
-            raise CloseSpider(reason = "reach max limit")
         
         
     # 实现了通过粉丝列表重新请求用户并进行翻页的功能
     def paese_followers(self, response):
+        self.check_closed()
         #添加异常是防止有些用户没有粉丝
         try:
             followers_data = json.loads(response.text)
@@ -102,6 +106,7 @@ class ZhihuUserSipder(Spider):
             
     # 实现了通过关注列表重新请求用户并进行翻页的功能
     def paese_follows(self,response):
+        self.check_closed()
         #添加异常是防止有些用户没有关注者
         try:
             followees_data = json.loads(response.text)
