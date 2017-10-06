@@ -60,7 +60,7 @@ class ZhihuUserSipder(Spider):
 
     def check_closed(self):
         if(self.close_down == True):
-            raise CloseSpider(reason = "reach max limit")    
+            raise CloseSpider(reason = "达到抓取数量")    
 
         
     # 详细信息的提取和粉丝关注列表的获取
