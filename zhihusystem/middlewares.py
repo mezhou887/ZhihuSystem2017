@@ -5,8 +5,21 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
+import random
 from scrapy import signals
+from zhihusystem.IPPOOL import IPPOOL
 
+
+class ProxyMiddleware(object):
+    
+    def __init__(self,ip=''):  
+        self.ip=ip  
+         
+    def process_request(self, request, spider):  
+        thisip=random.choice(IPPOOL)  
+        print("this is ip:"+thisip["ipaddr"])  
+        request.meta["proxy"]="http://"+thisip["ipaddr"] 
+        
 
 class ZhihuSystemSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,

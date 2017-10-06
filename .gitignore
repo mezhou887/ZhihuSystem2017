@@ -112,3 +112,4 @@ zhihusystem/items.pyc
 zhihusystem/spiders/ZhihuLoginSpider.pyc
 zhihusystem/settings.pyc
 *.pyc
+*.pyc
