@@ -18,6 +18,5 @@ if __name__ =="__main__":
     
 #     cmdline.execute("scrapy crawl zhihuLogin -o zhihuLogin.csv".split())
     cmdline.execute("scrapy crawl zhihuuser".split())
-#     cmdline.execute("scrapy crawl xicidaili".split())
     
     
